@@ -1,8 +1,9 @@
 import express from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 import { get, merge} from 'lodash';
 
-import { getUserBySessionToken } from '../db/users';
+import { getUserById, getUserBySessionToken } from '../db/users';
 
 export const isOwner = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
@@ -25,25 +26,31 @@ export const isOwner = async (req: express.Request, res: express.Response, next:
 }
 
 export const isAuthenticated = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    try{
-        const sessionToken = req.cookies['TICKETING-AUTH'];
+    try {
+        const token = req.headers['authorization'];
 
-        if (!sessionToken) {
-            return res.sendStatus(403);
+        if (!token || !token.startsWith('Bearer ')) {
+            return res.status(401).json('Unauthorized user');
         }
 
-        const existingUser = await getUserBySessionToken(sessionToken);
+        const sessionToken = token.split(' ')[1];
 
-        if (!existingUser) {
-            return res.sendStatus(403);
+        try {
+            const decoded = jwt.verify(sessionToken, 'secretKey') as JwtPayload;
+            console.log(decoded);
+            const existingUser = await getUserById(decoded.userId);
+
+            if (!existingUser) {
+                return res.status(403).json('Invalid session token');
+            }
+
+            merge(req, { identity: existingUser }); // Attach user information to the request object
+            return next();
+        } catch (error) {
+            return res.status(400).json('Token not valid');
         }
-
-        merge(req, { identity: existingUser });
-
-        return next();
-
-    } catch(err) {
-        console.log(err);
+    } catch (err) {
+        console.error(err);
         return res.sendStatus(400);
     }
 };

@@ -1,4 +1,6 @@
 import express from 'express';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 
 import { createUser, getUserdByEmail, getUserdByUsername } from '../db/users';
 import { random, authentication } from '../helpers';
@@ -23,14 +25,15 @@ export const login = async (req: express.Request, res: express.Response) => {
             return res.sendStatus(403);
         }
 
-        const salt = random();
-        user.authentication.sessionToken = authentication(salt, user._id.toString());
+        // Generate a JWT session token
+        const sessionToken = jwt.sign({ userId: user._id }, 'secretKey', { expiresIn: '1h' });
+        user.authentication.sessionToken = sessionToken;
 
         await user.save();
 
-        res.cookie('TICKETING-AUTH', user.authentication.sessionToken, { domain: 'localhost', path: '/' });
+        // res.cookie('TICKETING-AUTH', user.authentication.sessionToken, { domain: 'localhost', path: '/' });
 
-        return res.status(200).json(user).end();
+        return res.status(200).json({ token: sessionToken, user }).end();
     } catch (err) {
         console.error(err);
         return res.sendStatus(400);
@@ -45,9 +48,10 @@ export const register = async (req: express.Request, res: express.Response) => {
             return res.sendStatus(400);
         }
 
-        const existingUser = await getUserdByEmail(email);
+        const existingUser = await getUserdByUsername(username);
+        const existingEmail = await getUserdByEmail(email);
 
-        if (existingUser) {
+        if (existingUser || existingEmail) {
             return res.sendStatus(400);
         }
 

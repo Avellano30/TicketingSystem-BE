@@ -32,7 +32,7 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
         const { username } = req.body;
 
         if(!username) {
-            return res.sendStatus(400);
+            return res.sendStatus(401);
         }
         const user = await getUserById(userId);
 

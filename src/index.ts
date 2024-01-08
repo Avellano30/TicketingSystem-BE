@@ -19,14 +19,20 @@ app.use(bodyParser.json());
 
 const server = http.createServer(app);
 
+const DB_NAME = 'mrt';
+const MONGO_URL = `mongodb+srv://limuelavellano:tDXICFdbL47FmFlL@mrt-ticketing-system.ag50wsx.mongodb.net/${DB_NAME}`;
+
+mongoose.Promise = global.Promise;
+mongoose.connect(MONGO_URL, {
+    dbName: DB_NAME, // Specify the database name here
+}).then(() => {
+    console.log('Connected to MongoDB');
+}).catch((err) => {
+    console.error('Error connecting to MongoDB:', err);
+});
+
+app.use('/', router());
+
 server.listen(8080, () => {
     console.log('Server running on port http://localhost:8080/');
 });
-
-const MONGO_URL = 'mongodb+srv://limuelavellano:tDXICFdbL47FmFlL@mrt-ticketing-system.ag50wsx.mongodb.net/';
-
-mongoose.Promise = Promise;
-mongoose.connect(MONGO_URL);
-mongoose.connection.on('error', (error: Error) => console.log(error));
-
-app.use('/', router());

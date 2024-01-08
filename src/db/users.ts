@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+const COLLECTION_NAME = 'adminAccounts';
+
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true },
@@ -8,9 +10,9 @@ const UserSchema = new mongoose.Schema({
         salt: { type: String, select: false },
         sessionToken: { type: String, select: false },
     },
-});
+}, { collection: COLLECTION_NAME });
 
-export const UserModel = mongoose.model("User", UserSchema);
+export const UserModel = mongoose.model("User", UserSchema, COLLECTION_NAME);
 
 export const getUsers = () => UserModel.find();
 export const getUserdByEmail = (email: string) => UserModel.findOne({email});
