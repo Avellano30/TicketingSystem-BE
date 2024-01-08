@@ -1,17 +1,17 @@
 import express from 'express';
 
-import { createUser, getUserdByEmail } from '../db/users';
+import { createUser, getUserdByEmail, getUserdByUsername } from '../db/users';
 import { random, authentication } from '../helpers';
 
 export const login = async (req: express.Request, res: express.Response) => {
     try {
-        const { email, password } = req.body;
+        const { username, password } = req.body;
 
-        if (!email || !password) {
+        if (!username || !password) {
             return res.sendStatus(400);
         }
 
-        const user = await getUserdByEmail(email).select('+authentication.salt +authentication.password');
+        const user = await getUserdByUsername(username).select('+authentication.salt +authentication.password');
 
         if (!user) {
             return res.sendStatus(400);
