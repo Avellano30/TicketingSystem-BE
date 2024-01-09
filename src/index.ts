@@ -7,6 +7,8 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import router from './router';
 
+require('dotenv').config();
+
 const app = express();
 
 app.use(cors({
@@ -18,6 +20,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 
 const server = http.createServer(app);
+const PORT = process.env.PORT;
 
 const DB_NAME = 'mrt';
 const MONGO_URL = `mongodb+srv://limuelavellano:tDXICFdbL47FmFlL@mrt-ticketing-system.ag50wsx.mongodb.net/${DB_NAME}`;
@@ -33,6 +36,6 @@ mongoose.connect(MONGO_URL, {
 
 app.use('/', router());
 
-server.listen(8080, () => {
-    console.log('Server running on port http://localhost:8080/');
+server.listen(PORT, () => {
+    console.log(`Server running on port http://localhost:${PORT}/`);
 });

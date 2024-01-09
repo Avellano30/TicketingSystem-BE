@@ -1,5 +1,4 @@
 import express from 'express';
-import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 import { createUser, getUserdByEmail, getUserdByUsername } from '../db/users';
@@ -8,6 +7,8 @@ import { random, authentication } from '../helpers';
 export const login = async (req: express.Request, res: express.Response) => {
     try {
         const { username, password } = req.body;
+
+        const secretKey = process.env.SECRET_KEY;
 
         if (!username || !password) {
             return res.sendStatus(400);
@@ -26,7 +27,7 @@ export const login = async (req: express.Request, res: express.Response) => {
         }
 
         // Generate a JWT session token
-        const sessionToken = jwt.sign({ userId: user._id }, 'secretKey', { expiresIn: '1h' });
+        const sessionToken = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
         user.authentication.sessionToken = sessionToken;
 
         await user.save();

@@ -29,6 +29,8 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
     try {
         const token = req.headers['authorization'];
 
+        const secretKey = process.env.SECRET_KEY;
+
         if (!token || !token.startsWith('Bearer ')) {
             return res.status(401).json('Unauthorized user');
         }
@@ -36,8 +38,16 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
         const sessionToken = token.split(' ')[1];
 
         try {
-            const decoded = jwt.verify(sessionToken, 'secretKey') as JwtPayload;
+            const decoded = jwt.verify(sessionToken, secretKey) as JwtPayload;
             console.log(decoded);
+
+            // Check if the token has expired
+            const currentTimestamp = Math.floor(Date.now() / 1000); // Get current timestamp in seconds
+            if (decoded.exp && decoded.exp < currentTimestamp) {
+                return res.status(401).json('Token has expired');
+            }
+
+            // Fetch user information based on the decoded userId
             const existingUser = await getUserById(decoded.userId);
 
             if (!existingUser) {
@@ -45,7 +55,8 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
             }
 
             merge(req, { identity: existingUser }); // Attach user information to the request object
-            return next();
+
+            return next(); // Move to the next middleware in the chain
         } catch (error) {
             return res.status(400).json('Token not valid');
         }

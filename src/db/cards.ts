@@ -1,16 +1,21 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
+
+interface ICard extends Document {
+    cardId: number;
+    balance: number;
+}
 
 const COLLECTION_NAME = 'cards';
 
 const CardSchema = new mongoose.Schema({
     cardId: { type: Number, required: true },
-    balance: { type: String, required: true },
+    balance: { type: Number, required: true },
 }, { collection: COLLECTION_NAME });
 
-export const CardModel = mongoose.model("Card", CardSchema, COLLECTION_NAME);
+export const CardModel = mongoose.model<ICard>("Card", CardSchema, COLLECTION_NAME);
 
+export const createCard = (cardData: Partial<ICard>) => new CardModel(cardData).save().then((card) => card.toObject());
 export const getCards = () => CardModel.find();
-export const getCardById = (cardId: string) => CardModel.findById(cardId);
-export const createCard = (values: Record<string, any>) => new CardModel(values).save().then((user) => user.toObject());
-export const deleteCardById = (cardId: string) => CardModel.findOneAndDelete({ _id: cardId});
-export const updateCardById = (cardId: string, values: Record<string, any>) => CardModel.findByIdAndUpdate(cardId, values);
+export const getCardById = (cardId: string) => CardModel.findOne({ cardId: cardId });
+export const deleteCardById = (cardId: string) => CardModel.findOneAndDelete({ cardId: cardId });
+export const updateCardById = (cardId: string, values: Partial<ICard>) => CardModel.findOneAndUpdate({ cardId: cardId }, values);
