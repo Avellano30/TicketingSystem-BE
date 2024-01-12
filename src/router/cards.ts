@@ -6,6 +6,6 @@ import { createNewCard, deleteCard, getAllCards, updateCardBalance } from '../co
 export default (router: express.Router) => {
     router.post('/card/create', createNewCard);
     router.get('/cards', getAllCards);
-    router.patch('/cards/:cardId', updateCardBalance);
+    router.patch('/cards/:cardId', isAuthenticated, updateCardBalance);
     router.delete('/cards/:cardId', deleteCard);
 }

@@ -28,7 +28,7 @@ export const isOwner = async (req: express.Request, res: express.Response, next:
 export const isAuthenticated = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const token = req.headers['authorization'];
-
+        console.log(req.headers);
         const secretKey = process.env.SECRET_KEY;
 
         if (!token || !token.startsWith('Bearer ')) {
