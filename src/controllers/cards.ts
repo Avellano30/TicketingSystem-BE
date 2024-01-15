@@ -37,6 +37,23 @@ export const createNewCard = async (req: express.Request, res: express.Response)
     }
 };
 
+export const getCardBalance = async (req: express.Request, res: express.Response) => {
+    try {
+        const { cardId } = req.params;
+
+        const card = await getCardById(cardId);
+
+        if (card === null) {
+            return res.sendStatus(404); // Card not found
+        }
+
+        return res.status(200).json({balance: card.balance});
+    } catch (err) {
+        console.error(err);
+        return res.sendStatus(500);
+    }
+};
+
 export const updateCardBalance = async (req: express.Request, res: express.Response) => {
     try {
         const { cardId } = req.params;

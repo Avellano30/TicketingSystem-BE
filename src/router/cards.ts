@@ -1,11 +1,12 @@
 import express from 'express';
 
 import { isAuthenticated } from '../middlewares';
-import { createNewCard, deleteCard, getAllCards, updateCardBalance } from '../controllers/cards';
+import { createNewCard, deleteCard, getAllCards, getCardBalance, updateCardBalance } from '../controllers/cards';
 
 export default (router: express.Router) => {
-    router.post('/card/create', createNewCard);
-    router.get('/cards', getAllCards);
+    router.post('/card/create', isAuthenticated, createNewCard);
+    router.get('/cards', isAuthenticated, getAllCards);
+    router.get('/cards/:cardId/balance', isAuthenticated, getCardBalance);
     router.patch('/cards/:cardId', isAuthenticated, updateCardBalance);
-    router.delete('/cards/:cardId', deleteCard);
+    router.delete('/cards/:cardId', isAuthenticated, deleteCard);
 }

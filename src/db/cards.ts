@@ -1,20 +1,20 @@
 import mongoose, { Document } from "mongoose";
 
-interface ITransaction {
+interface BeepTransaction {
     fare: number;
     date: string;
 }
 
-interface ICard extends Document {
+interface BeepCard extends Document {
     cardId: number;
     balance: number;
-    transactions: ITransaction[];
+    transactions: BeepTransaction[];
 }
 
 const COLLECTION_NAME = 'cards';
 
 const CardSchema = new mongoose.Schema({
-    cardId: { type: Number, required: true },
+    cardId: { type: Number, required: true, unique: true },
     balance: { type: Number, required: true },
     transactions: [
         {
@@ -24,30 +24,30 @@ const CardSchema = new mongoose.Schema({
     ]
 }, { collection: COLLECTION_NAME });
 
-export const CardModel = mongoose.model<ICard>("Card", CardSchema, COLLECTION_NAME);
+export const CardModel = mongoose.model<BeepCard>("Card", CardSchema, COLLECTION_NAME);
 
-export const createCard = async (cardData: Partial<ICard>): Promise<ICard> => {
+export const createCard = async (cardData: Partial<BeepCard>): Promise<BeepCard> => {
     const card = await new CardModel(cardData).save();
     return card.toObject();
 };
 
-export const getCards = async (): Promise<ICard[]> => {
+export const getCards = async (): Promise<BeepCard[]> => {
     return CardModel.find();
 };
 
-export const getCardById = async (cardId: string): Promise<ICard | null> => {
+export const getCardById = async (cardId: string): Promise<BeepCard | null> => {
     return CardModel.findOne({ cardId: cardId });
 };
 
-export const deleteCardById = async (cardId: string): Promise<ICard | null> => {
+export const deleteCardById = async (cardId: string): Promise<BeepCard | null> => {
     return CardModel.findOneAndDelete({ cardId: cardId });
 };
 
-export const updateCardById = async (cardId: string, values: Partial<ICard>): Promise<ICard | null> => {
+export const updateCardById = async (cardId: string, values: Partial<BeepCard>): Promise<BeepCard | null> => {
     return CardModel.findOneAndUpdate({ cardId: cardId }, values, { new: true });
 };
 
-export const addTransactionToCard = async (cardId: string, transaction: ITransaction): Promise<ICard | null> => {
+export const addTransactionToCard = async (cardId: string, transaction: BeepTransaction): Promise<BeepCard | null> => {
     return CardModel.findOneAndUpdate(
         { cardId: cardId },
         { $push: { transactions: transaction } },
