@@ -4,6 +4,7 @@ import authentication from './authentication';
 import users from './users';
 import cards from './cards';
 import stations from './stations';
+import settings from './settings';
 
 const router = express.Router();
 
@@ -12,6 +13,7 @@ export default (): express.Router => {
     users(router);
     cards(router);
     stations(router);
-
+    settings(router);
+    
     return router;
 }

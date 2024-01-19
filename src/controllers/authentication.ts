@@ -27,7 +27,7 @@ export const login = async (req: express.Request, res: express.Response) => {
         }
 
         // Generate a JWT session token
-        const sessionToken = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
+        const sessionToken = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '3h' });
         user.authentication.sessionToken = sessionToken;
 
         await user.save();
