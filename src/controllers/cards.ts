@@ -104,3 +104,33 @@ export const deleteCard = async (req: express.Request, res: express.Response) =>
         return res.sendStatus(500);
     }
 };
+
+
+import { Request, Response } from 'express';
+import { addTransactionToCard, BeepTransaction } from '../db/cards';
+
+export const addTransactionToCardController = async (req: Request, res: Response): Promise<void> => {
+    const { cardId } = req.params;
+  
+    try {
+        // Extract 'transaction' from the request body
+        const { transaction } = req.body as { transaction: BeepTransaction };
+        console.log(transaction);
+        // Check if 'transaction' is missing
+        if (!transaction) {
+            res.status(400).json({ error: 'Transaction data is missing' });
+            return;
+        }
+      
+        const updatedCard = await addTransactionToCard(cardId, transaction);
+  
+        if (updatedCard) {
+            res.status(200).json(updatedCard);
+        } else {
+            res.status(404).json({ error: 'Card not found' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};

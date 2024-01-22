@@ -1,11 +1,19 @@
 import mongoose, { Document } from "mongoose";
 
-interface BeepTransaction {
-    fare: number;
-    date: string;
+export interface BeepTransaction {
+    fare: number | null;
+    tapIn: {
+        station: string;
+        date: string;
+    } | null;
+    tapOut: {
+        station: string;
+        date: string;
+    } | null;
+    distance: number | null;
 }
 
-interface BeepCard extends Document {
+export interface BeepCard extends Document {
     cardId: number;
     balance: number;
     transactions: BeepTransaction[];
@@ -18,9 +26,18 @@ const CardSchema = new mongoose.Schema({
     balance: { type: Number, required: true },
     transactions: [
         {
-            fare: { type: Number, required: true },
-            date: { type: String, required: true },
+            fare: { type: Number, default: null },
+            tapIn: {
+                station: { type: String, default: null },
+                date: { type: String, default: null },
+            },
+            tapOut: {
+                station: { type: String, default: null },
+                date: { type: String, default: null },
+            },
+            distance: { type: Number, default: null },
         }
+
     ]
 }, { collection: COLLECTION_NAME });
 
@@ -54,3 +71,23 @@ export const addTransactionToCard = async (cardId: string, transaction: BeepTran
         { new: true }
     );
 };
+
+export const updateTransaction = async (
+    cardId: string,
+    tapInDate: string,
+    updatedTransactionData: Partial<BeepTransaction>
+  ): Promise<BeepCard | null> => {
+    const query = { cardId: cardId, 'transactions.tapIn.date': tapInDate };
+    const update = {
+      $set: {
+        'transactions.$[elem].fare': updatedTransactionData.fare,
+        'transactions.$[elem].tapOut': updatedTransactionData.tapOut,
+        'transactions.$[elem].distance': updatedTransactionData.distance
+      }
+    };
+    const arrayFilters = [{ 'elem.tapIn.date': tapInDate }];
+    const options = { arrayFilters: arrayFilters, new: true };
+  
+    return CardModel.findOneAndUpdate(query, update, options);
+  };
+  

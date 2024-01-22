@@ -28,7 +28,7 @@ export const isOwner = async (req: express.Request, res: express.Response, next:
 export const isAuthenticated = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const token = req.headers['authorization'];
-        console.log(token);
+        // console.log(token);
         const secretKey = process.env.SECRET_KEY;
 
         if (!token || !token.startsWith('Bearer ')) {
@@ -39,7 +39,7 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
 
         try {
             const decoded = jwt.verify(sessionToken, secretKey) as JwtPayload;
-            console.log(decoded);
+            // console.log(decoded);
 
             // Check if the token has expired
             const currentTimestamp = Math.floor(Date.now() / 1000); // Get current timestamp in seconds
