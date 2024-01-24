@@ -4,7 +4,7 @@ const COLLECTION_NAME = 'settings';
 
 const SettingSchema = new mongoose.Schema({
     min_fare: { type: Number, required: true },
-    max_fare: { type: Number, required: true },
+    misentry: { type: Number, required: true },
     fare_per_km: { type: Number, required: true },
     initial_load: { type: Number, required: true },
 }, { collection: COLLECTION_NAME });

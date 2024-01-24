@@ -8,8 +8,20 @@ export const getAllUsers = async (req: express.Request, res: express.Response) =
         
         return res.status(200).json(users);
     } catch (err) {
-         console.error(err);
-         return res.sendStatus(err);
+        console.error(err);
+        return res.sendStatus(err);
+    }
+};
+
+export const getUserData = async (req: express.Request, res: express.Response) => {
+    try {
+        const { userId } = req.params;
+        const users = await getUserById(userId);
+        
+        return res.status(200).json(users);
+    } catch (err) {
+        console.error(err);
+        return res.sendStatus(err);
     }
 };
 

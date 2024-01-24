@@ -1,5 +1,8 @@
 import express from 'express';
-import { createCard, deleteCardById, getCardById, getCards } from '../db/cards';
+import {
+    createCard, deleteCardById, getCardById, getCards,
+    addTransactionToCard, BeepTransaction, updateTransaction
+} from '../db/cards';
 
 export const getAllCards = async (req: express.Request, res: express.Response) => {
     try {
@@ -66,7 +69,7 @@ export const getCardBalance = async (req: express.Request, res: express.Response
             return res.sendStatus(404); // Card not found
         }
 
-        return res.status(200).json({balance: card.balance});
+        return res.status(200).json({ balance: card.balance });
     } catch (err) {
         console.error(err);
         return res.sendStatus(500);
@@ -124,13 +127,9 @@ export const deleteCard = async (req: express.Request, res: express.Response) =>
     }
 };
 
-
-import { Request, Response } from 'express';
-import { addTransactionToCard, BeepTransaction } from '../db/cards';
-
-export const addTransactionToCardController = async (req: Request, res: Response): Promise<void> => {
+export const addTransaction = async (req: express.Request, res: express.Response): Promise<void> => {
     const { cardId } = req.params;
-  
+
     try {
         // Extract 'transaction' from the request body
         const { transaction } = req.body as { transaction: BeepTransaction };
@@ -140,9 +139,9 @@ export const addTransactionToCardController = async (req: Request, res: Response
             res.status(400).json({ error: 'Transaction data is missing' });
             return;
         }
-      
+
         const updatedCard = await addTransactionToCard(cardId, transaction);
-  
+
         if (updatedCard) {
             res.status(200).json(updatedCard);
         } else {
@@ -150,6 +149,35 @@ export const addTransactionToCardController = async (req: Request, res: Response
         }
     } catch (error) {
         console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+export const updateLastTransaction = async (req: express.Request, res: express.Response): Promise<void> => {
+    try {
+        const { cardId, transactionId  } = req.params;
+        const { fare, tapOut, distance }: Partial<BeepTransaction> = req.body;
+
+        if (!cardId || !transactionId  || (fare === undefined && tapOut === undefined && distance === undefined)) {
+            res.status(400).json({ error: 'Invalid request parameters or missing data' });
+            return;
+        }
+
+        const updatedTransactionData: Partial<BeepTransaction> = {
+            fare,
+            tapOut,
+            distance
+        };
+
+        const updatedCard = await updateTransaction(cardId, transactionId , updatedTransactionData);
+
+        if (updatedCard) {
+            res.status(200).json(updatedCard);
+        } else {
+            res.status(404).json({ error: 'Card not found or transaction not updated' });
+        }
+    } catch (error) {
+        console.error('Error updating transaction:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };

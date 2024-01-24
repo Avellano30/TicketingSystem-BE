@@ -72,22 +72,17 @@ export const addTransactionToCard = async (cardId: string, transaction: BeepTran
     );
 };
 
-export const updateTransaction = async (
-    cardId: string,
-    tapInDate: string,
-    updatedTransactionData: Partial<BeepTransaction>
-  ): Promise<BeepCard | null> => {
-    const query = { cardId: cardId, 'transactions.tapIn.date': tapInDate };
+export const updateTransaction = async (cardId: string, transactionId: string, updatedTransactionData: Partial<BeepTransaction>): Promise<BeepCard | null> => {
+    const query = { cardId: cardId, 'transactions._id': transactionId };
     const update = {
-      $set: {
-        'transactions.$[elem].fare': updatedTransactionData.fare,
-        'transactions.$[elem].tapOut': updatedTransactionData.tapOut,
-        'transactions.$[elem].distance': updatedTransactionData.distance
-      }
+        $set: {
+            'transactions.$[elem].fare': updatedTransactionData.fare,
+            'transactions.$[elem].tapOut': updatedTransactionData.tapOut,
+            'transactions.$[elem].distance': updatedTransactionData.distance
+        }
     };
-    const arrayFilters = [{ 'elem.tapIn.date': tapInDate }];
+    const arrayFilters = [{ 'elem._id': new mongoose.Types.ObjectId(transactionId) }];
     const options = { arrayFilters: arrayFilters, new: true };
-  
+
     return CardModel.findOneAndUpdate(query, update, options);
-  };
-  
+};
