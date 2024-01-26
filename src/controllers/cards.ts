@@ -47,7 +47,7 @@ export const getCardTransaction = async (req: express.Request, res: express.Resp
         const card = await getCardById(cardId);
 
         if (card === null) {
-            return res.sendStatus(404); // Card not found
+            return res.status(404); // Card not found
         }
 
         return res.status(200).json({
