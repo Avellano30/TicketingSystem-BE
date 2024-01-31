@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getStations, getStationByName, createStation, deleteStationById, updateStationById } from '../db/stations';
+import { getStations, getStationByName, createStation, deleteStationById, updateStationById, getStationById } from '../db/stations';
 
 
 export const getAllStations = async (req: Request, res: Response): Promise<void> => {
@@ -12,10 +12,26 @@ export const getAllStations = async (req: Request, res: Response): Promise<void>
     }
 };
 
-export const getStation = async (req: Request, res: Response): Promise<void> => {
+export const getStationWithName = async (req: Request, res: Response): Promise<void> => {
     try {
-        const stationName = req.params.name;
+        const stationName = req.params.stationName;
         const station = await getStationByName(stationName);
+        
+        if (station) {
+            res.json(station);
+        } else {
+            res.status(404).send('Station not found');
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+export const getStationWithId = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const stationId = req.params.stationId;
+        const station = await getStationById(stationId).populate('connectedTo');
         
         if (station) {
             res.json(station);

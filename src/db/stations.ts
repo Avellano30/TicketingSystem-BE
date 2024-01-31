@@ -11,12 +11,10 @@ const StationSchema = new mongoose.Schema({
 export const StationModel = mongoose.model("Station", StationSchema, COLLECTION_NAME);
 
 export const getStations = () => StationModel.find();
+export const getStationById = (id: string) => StationModel.findOne({ _id: id });
 export const getStationByName = (name: string) => StationModel.findOne({ name });
 export const createStation = (values: Record<string, any>) => new StationModel(values).save().then((station) => station.toObject());
 export const deleteStationById = (stationId: string) => StationModel.findOneAndDelete({ _id: stationId });
 export const updateStationById = async (stationId: string, values: Record<string, any>) => {
     return StationModel.findByIdAndUpdate(stationId, values, { new: true });
 };
-
-
-// export const deleteUserById = (userId: string) => UserModel.findOneAndDelete({ _id: userId});
