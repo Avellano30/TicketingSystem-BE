@@ -47,6 +47,20 @@ export const getStationWithId = async (req: Request, res: Response): Promise<voi
 export const createNewStation = async (req: Request, res: Response): Promise<void> => {
     try {
         const newStation = await createStation(req.body);
+
+        // Handle adding new connections
+        const newConnections = req.body.connectedTo;
+        if (newConnections && Array.isArray(newConnections)) {
+            const uniqueNewConnections = newConnections.filter(conn => newStation.connectedTo.includes(conn));
+            newStation.connectedTo.push(...uniqueNewConnections);
+            
+            // Update connectedTo in other stations where the new connections are present
+            await StationModel.updateMany(
+                { name: { $in: uniqueNewConnections } },
+                { $addToSet: { connectedTo: newStation.name } }
+            );
+        }
+
         res.json(newStation);
     } catch (error) {
         console.error(error);
@@ -99,15 +113,6 @@ export const updateStation = async (req: Request, res: Response): Promise<void> 
             res.status(404).send('Station not found');
             return;
         }
-        
-        const newName = values.name;
-        if (newName && newName !== existingStation.name) {
-            // Update connectedTo in other stations where this station is connected
-            await StationModel.updateMany(
-                { connectedTo: existingStation.name },
-                { $set: { "connectedTo.$": newName } }
-            );
-        }
 
         // Handle adding new connections
         const newConnections = values.connectedTo;
@@ -131,6 +136,16 @@ export const updateStation = async (req: Request, res: Response): Promise<void> 
             await StationModel.updateMany(
                 { name: { $in: removedConnections } },
                 { $pull: { connectedTo: existingStation.name } }
+            );
+        }
+
+        // Update the station name after processing connections
+        const newName = values.name;
+        if (newName && newName !== existingStation.name) {
+            // Update connectedTo in other stations where this station is connected
+            await StationModel.updateMany(
+                { connectedTo: existingStation.name },
+                { $set: { "connectedTo.$": newName } }
             );
         }
 
