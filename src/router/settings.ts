@@ -4,6 +4,6 @@ import { getAllSettings, getSetting, updateSetting,  } from '../controllers/sett
 import { isAuthenticated } from '../middlewares';
 
 export default (router: express.Router) => {
-    router.get('/setting', isAuthenticated, getAllSettings);
+    router.get('/setting', getAllSettings);
     router.patch('/setting/:settingId', isAuthenticated, updateSetting);
 }

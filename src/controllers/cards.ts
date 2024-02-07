@@ -133,7 +133,7 @@ export const addTransaction = async (req: express.Request, res: express.Response
     try {
         // Extract 'transaction' from the request body
         const { transaction } = req.body as { transaction: BeepTransaction };
-        console.log(transaction);
+        
         // Check if 'transaction' is missing
         if (!transaction) {
             res.status(400).json({ error: 'Transaction data is missing' });
@@ -171,11 +171,26 @@ export const updateLastTransaction = async (req: express.Request, res: express.R
 
         const updatedCard = await updateTransaction(cardId, transactionId , updatedTransactionData);
 
-        if (updatedCard) {
-            res.status(200).json(updatedCard);
-        } else {
+        if (!updatedCard) {
             res.status(404).json({ error: 'Card not found or transaction not updated' });
+            return;
         }
+
+        const card = await getCardById(cardId);
+
+        if (!card) {
+            res.sendStatus(404);
+            return;
+        }
+
+        const currentBalance = card.balance || 0;
+        
+        const newBalance = currentBalance - (fare || 0);
+
+        card.balance = newBalance;
+        await card.save();
+
+        res.status(200).json(updatedCard);
     } catch (error) {
         console.error('Error updating transaction:', error);
         res.status(500).json({ error: 'Internal server error' });
