@@ -7,6 +7,7 @@ const SettingSchema = new mongoose.Schema({
     misentry: { type: Number, required: true },
     fare_per_km: { type: Number, required: true },
     initial_load: { type: Number, required: true },
+    maintenance: { type: Boolean, required: true },
 }, { collection: COLLECTION_NAME });
 
 export const SettingModel = mongoose.model("Setting", SettingSchema, COLLECTION_NAME);
