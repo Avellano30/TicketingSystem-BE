@@ -12,8 +12,11 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors({
+    origin: 'https://mrt-ticketing.onrender.com',
     credentials: true,
 }));
+
+app.options('*', cors());
 
 app.use(compression());
 app.use(cookieParser());
