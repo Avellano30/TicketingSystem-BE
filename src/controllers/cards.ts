@@ -1,7 +1,7 @@
 import express from 'express';
 import {
     createCard, deleteCardById, getCardById, getCards,
-    addTransactionToCard, BeepTransaction, updateTransaction
+    addTransactionToCard, BeepTransaction, updateTransaction, getCardByDeviceId
 } from '../db/cards';
 
 export const getAllCards = async (req: express.Request, res: express.Response) => {
@@ -194,5 +194,43 @@ export const updateLastTransaction = async (req: express.Request, res: express.R
     } catch (error) {
         console.error('Error updating transaction:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// -----------------------------------------------------------------------
+export const updateCardDeviceID = async (req: express.Request, res: express.Response) => {
+    try {
+        const { cardId } = req.params;
+        const { deviceID } = req.body;
+        
+        const card = await getCardById(cardId);
+
+        if (!card) {
+            return res.sendStatus(404);
+        }
+
+        card.deviceID = deviceID;
+        await card.save();
+        return res.status(200).json(card);
+    } catch (err) {
+        console.error(err);
+        return res.sendStatus(500);
+    }
+};
+
+export const getDeviceCards = async (req: express.Request, res: express.Response) => {
+    try {
+        const { deviceID } = req.params;
+        
+        const cards = await getCardByDeviceId(deviceID);
+
+        if (cards === null) {
+            return res.status(404);
+        }
+
+        return res.status(200).json(cards);
+    } catch (err) {
+        console.error(err);
+        return res.sendStatus(500);
     }
 };

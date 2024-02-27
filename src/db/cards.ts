@@ -17,6 +17,7 @@ export interface BeepCard extends Document {
     cardId: number;
     balance: number;
     transactions: BeepTransaction[];
+    deviceID: string;
 }
 
 const COLLECTION_NAME = 'cards';
@@ -38,7 +39,8 @@ const CardSchema = new mongoose.Schema({
             distance: { type: Number, default: null },
         }
 
-    ]
+    ],
+    deviceID:{ type: String, default: null }
 }, { collection: COLLECTION_NAME });
 
 export const CardModel = mongoose.model<BeepCard>("Card", CardSchema, COLLECTION_NAME);
@@ -54,6 +56,10 @@ export const getCards = async (): Promise<BeepCard[]> => {
 
 export const getCardById = async (cardId: string): Promise<BeepCard | null> => {
     return CardModel.findOne({ cardId: cardId });
+};
+
+export const getCardByDeviceId = async (deviceID: string): Promise<BeepCard[] | null> => {
+    return CardModel.find({ deviceID: deviceID });
 };
 
 export const deleteCardById = async (cardId: string): Promise<BeepCard | null> => {

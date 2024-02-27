@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { isAuthenticated } from '../middlewares';
-import { createNewCard, deleteCard, getAllCards, getCardTransaction, getCardBalance, updateCardBalance, addTransaction, updateLastTransaction } from '../controllers/cards';
+import { createNewCard, deleteCard, getAllCards, getCardTransaction, getCardBalance, updateCardBalance, addTransaction, updateLastTransaction, updateCardDeviceID, getDeviceCards } from '../controllers/cards';
 
 export default (router: express.Router) => {
     router.post('/card/create', isAuthenticated, createNewCard);
@@ -14,4 +14,9 @@ export default (router: express.Router) => {
     router.get('/cards/:cardId/cardTransac', getCardTransaction);
     router.post('/cards/:cardId/transactions', addTransaction);
     router.patch('/cards/:cardId/transactions/:transactionId', updateLastTransaction);
+
+    //Mobile
+    router.get('/mobile/card/:deviceID', getDeviceCards);
+    router.patch('/mobile/card/:cardId', updateCardDeviceID);
+
 }
