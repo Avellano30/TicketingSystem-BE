@@ -6,20 +6,41 @@ import compression from 'compression';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import router from './router';
+import { Server } from 'socket.io';
 
 require('dotenv').config();
 
 const app = express();
 
-app.use(cors({
-    credentials: true,
-}));
+app.use(cors());
 
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use('/', router());
 
 const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
+
+io.on('connection', (socket) => {
+    console.log(`User connected: ${socket.id}`);
+
+    // Example event handling
+    socket.on('message', (msg) => {
+        console.log('Message received:', msg);
+        socket.broadcast.emit('receive_message',msg);
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`User disconnected: ${socket.id}`);
+    });
+});
+
 const PORT = process.env.PORT;
 
 const DB_NAME = 'mrt';
@@ -33,8 +54,6 @@ mongoose.connect(MONGO_URL, {
 }).catch((err) => {
     console.error('Error connecting to MongoDB:', err);
 });
-
-app.use('/', router());
 
 server.listen(PORT, () => {
     console.log(`Server running on port http://localhost:${PORT}/`);
