@@ -22,18 +22,29 @@ app.use('/', router());
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-      origin: "*",
-      methods: ["GET", "POST"]
+        origin: "*",
+        methods: ["GET", "POST"]
     }
-  });
+});
 
 io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
 
+    // Join a room 
+    socket.on("joinRoom", (room) => {
+        socket.join(room);
+        console.log(`User joined room: ${room}`);
+    });
+
+    socket.on('leaveRoom', (room) => {
+        socket.leave(room);
+        console.log(`User left room: ${room}`);
+    });
+
     // Example event handling
-    socket.on('message', (msg) => {
-        console.log('Message received:', msg);
-        socket.broadcast.emit('receive_message',msg);
+    socket.on('privateMessage', (socketId, message) => {
+        io.to(socketId).emit('message', message);
+        console.log(`Message sent to client ${socketId}: ${message}`);
     });
 
     socket.on('disconnect', () => {
