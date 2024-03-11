@@ -41,11 +41,17 @@ io.on('connection', (socket) => {
         console.log(`User left room: ${room}`);
     });
 
-    // Example event handling
     socket.on('privateMessage', (socketId, message) => {
         io.to(socketId).emit('message', message);
         console.log(`Message sent to client ${socketId}: ${message}`);
     });
+
+    socket.on('reply', (message) => {
+        console.log('Reply Message: ' + message);
+        socket.broadcast.emit('reply', message); // Broadcast the message to all clients except the sender
+    });
+
+    socket
 
     socket.on('disconnect', () => {
         console.log(`User disconnected: ${socket.id}`);
