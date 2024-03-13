@@ -46,12 +46,10 @@ io.on('connection', (socket) => {
         console.log(`Message sent to client ${socketId}: ${message}`);
     });
 
-    socket.on('reply', (message) => {
+    socket.on('reply', (socketId, message) => {
         console.log('Reply Message: ' + message);
-        socket.broadcast.emit('reply', message); // Broadcast the message to all clients except the sender
+        io.to(socketId).emit('reply', message);
     });
-
-    socket
 
     socket.on('disconnect', () => {
         console.log(`User disconnected: ${socket.id}`);
